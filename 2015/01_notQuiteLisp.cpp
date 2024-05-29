@@ -19,7 +19,9 @@ std::string getInput(std::string filepath) {
 int findFloor(std::string input) {
   std::stringstream stream(input);
 
+  int charPos = 1;
   int floor = 0;
+  bool basementSeen = false;
   char current;
   while (stream.get(current)) {
     if (current == '(') {
@@ -31,18 +33,17 @@ int findFloor(std::string input) {
                 << std::endl;
       std::terminate();
     }
+    if (floor < 0 && !basementSeen) {
+      std::cout << "First touched basement at charPos: " << charPos
+                << std::endl;
+      basementSeen = true;
+    }
+    ++charPos;
   }
   return floor;
 }
 
 int main() {
-
-  std::string test1("(())");
-  std::string test2("(((");
-
-  std::cout << "Test1 should be 0: " << findFloor(test1) << std::endl;
-  std::cout << "Test2 should be 3: " << findFloor(test2) << std::endl;
-
   std::string input = getInput("./01_input.txt");
   std::cout << "Floor found at: " << findFloor(input) << std::endl;
 
