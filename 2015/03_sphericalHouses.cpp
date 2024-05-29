@@ -5,11 +5,11 @@
 #include <stdexcept>
 #include <string>
 
-class houses {
+class SantaPath {
 private:
   struct loc {
-    int x = 0;
-    int y = 0;
+    int x;
+    int y;
     bool operator<(const loc &other) const {
       if (x == other.x) {
         return y < other.y;
@@ -19,10 +19,15 @@ private:
   };
 
   std::set<loc> visited;
-  loc currentLoc;
+  loc currentLoc_p1 = {0, 0};
   int visitedCount = 1;
 
-  void moveCurrentLoc(char direction, loc &currentloc) {
+  std::set<loc> visitedP2;
+  loc currentLocRobot_p2 = {0, 0};
+  loc currentLocSanta_p2 = {0, 0};
+  int visitedCountP2 = 1;
+
+  void moveCurrentLoc(char direction, loc &currentLoc) {
     switch (direction) {
     case '<':
       --currentLoc.y;
@@ -51,29 +56,71 @@ private:
     return input;
   }
 
-  int countHouses(std::string filePath) {
-    std::string input = getInput(filePath);
+  int countHouses(std::string input) {
     std::istringstream stream(input);
-    visited.insert(currentLoc);
+    visited.insert(currentLoc_p1);
 
     char currentChar;
     while (stream.get(currentChar)) {
-      moveCurrentLoc(currentChar, currentLoc);
-      if (visited.insert(currentLoc).second) {
+      moveCurrentLoc(currentChar, currentLoc_p1);
+      if (visited.insert(currentLoc_p1).second) {
         ++visitedCount;
       }
     }
     return visitedCount;
   }
 
+  int countHousesP2(std::string input) {
+    char currentChar;
+    std::stringstream stream(input);
+    std::string santaInput, robotInput;
+    visitedP2.insert(currentLocRobot_p2);
+
+    int charpos = 0;
+    while (stream.get(currentChar)) {
+      if (charpos % 2 == 0) {
+        santaInput.push_back(currentChar);
+      } else {
+        robotInput.push_back(currentChar);
+      }
+      ++charpos;
+    }
+
+    std::stringstream santaStream(santaInput);
+    while (santaStream.get(currentChar)) {
+      moveCurrentLoc(currentChar, currentLocSanta_p2);
+      if (visitedP2.insert(currentLocSanta_p2).second) {
+        ++visitedCountP2;
+      }
+    }
+
+    std::stringstream robotStream(robotInput);
+    while (robotStream.get(currentChar)) {
+      moveCurrentLoc(currentChar, currentLocRobot_p2);
+      if (visitedP2.insert(currentLocRobot_p2).second) {
+        ++visitedCountP2;
+      }
+    }
+
+    return visitedCountP2;
+  };
+
 public:
   int getVisitedHousesCount(std::string filePath) {
-    return countHouses(filePath);
+    std::string input = getInput(filePath);
+    return countHouses(input);
+  }
+  int getVisitedHousesCountP2(std::string filePath) {
+    std::string input = getInput(filePath);
+    return countHousesP2(input);
   }
 };
 
 int main() {
-  houses h;
+  SantaPath s;
   std::cout << "Visited house count: "
-            << h.getVisitedHousesCount("./03_input.txt") << std::endl;
+            << s.getVisitedHousesCount("./03_input.txt") << std::endl;
+
+  std::cout << "Part 2 visited houses count: "
+            << s.getVisitedHousesCountP2("./03_input.txt") << std::endl;
 }
