@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -7,12 +8,9 @@
 std::string getInput(std::string filepath) {
   std::ifstream file(filepath);
   std::string firstLine;
-
-  if (file.is_open()) {
+  if (file) {
     std::getline(file, firstLine);
-    file.close();
   }
-
   return firstLine;
 }
 
@@ -23,23 +21,28 @@ int findFloor(std::string input) {
   int floor = 0;
   bool basementSeen = false;
   char current;
-  while (stream.get(current)) {
-    if (current == '(') {
+
+  std::for_each(input.begin(), input.end(), [&](char current) {
+    switch (current) {
+    case '(':
       ++floor;
-    } else if (current == ')') {
+      break;
+    case ')':
       --floor;
-    } else {
+      break;
+    default:
       std::cerr << "Invalid input character: < " << current << " >"
                 << std::endl;
       std::terminate();
     }
+
     if (floor < 0 && !basementSeen) {
       std::cout << "First touched basement at charPos: " << charPos
                 << std::endl;
       basementSeen = true;
     }
     ++charPos;
-  }
+  });
   return floor;
 }
 
