@@ -2,7 +2,6 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 std::string getInput(std::string filepath) {
@@ -15,13 +14,9 @@ std::string getInput(std::string filepath) {
 }
 
 int findFloor(std::string input) {
-  std::stringstream stream(input);
-
   int charPos = 1;
   int floor = 0;
   bool basementSeen = false;
-  char current;
-
   std::for_each(input.begin(), input.end(), [&](char current) {
     switch (current) {
     case '(':
