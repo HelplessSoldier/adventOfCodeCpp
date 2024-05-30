@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+// g++ 04_idealStockingStuffer.cpp -o 04_idealStockingStuffer -lssl -lcrypto
+
 bool isAnswer(const std::string &hashedString) {
   int consecutiveZerosCount = 5;
   for (int i = 0; i < consecutiveZerosCount; ++i) {
