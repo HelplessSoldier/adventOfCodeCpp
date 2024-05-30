@@ -1,3 +1,4 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -117,10 +118,19 @@ public:
 };
 
 int main() {
+  auto start = std::chrono::high_resolution_clock::now();
+
   SantaPath s;
   std::cout << "Visited house count: "
             << s.getVisitedHousesCount("./03_input.txt") << std::endl;
 
   std::cout << "Part 2 visited houses count: "
             << s.getVisitedHousesCountP2("./03_input.txt") << std::endl;
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+          .count();
+
+  std::cout << "Completed in: " << duration << "ms" << std::endl;
 }
