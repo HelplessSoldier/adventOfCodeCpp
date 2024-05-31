@@ -1,3 +1,5 @@
+// this could have been simplified using lambdas for each operation.
+
 #include <algorithm>
 #include <bitset>
 #include <fstream>
