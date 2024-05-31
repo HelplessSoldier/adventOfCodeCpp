@@ -71,7 +71,6 @@ bool isNiceStringP2(const std::string &input) {
 }
 
 int main() {
-
   std::ifstream stream("./05_input.txt");
   std::string line;
 
