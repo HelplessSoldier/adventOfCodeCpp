@@ -60,9 +60,9 @@ adjustedRange getRange(const command &comm) {
   return range;
 }
 
-void toggleSquare(std::vector<std::bitset<1000>> &lights, const command &comm) {
+void toggleSquareBits(std::vector<std::bitset<1000>> &lights,
+                      const command &comm) {
   adjustedRange range = getRange(comm);
-
   for (int x = range.start_x; x <= range.end_x; ++x) {
     for (int y = range.start_y; y <= range.end_y; ++y) {
       lights[x][y].flip();
@@ -70,7 +70,8 @@ void toggleSquare(std::vector<std::bitset<1000>> &lights, const command &comm) {
   }
 }
 
-void turnOnSquare(std::vector<std::bitset<1000>> &lights, const command &comm) {
+void turnOnSquareBits(std::vector<std::bitset<1000>> &lights,
+                      const command &comm) {
   adjustedRange range = getRange(comm);
   for (int x = range.start_x; x <= range.end_x; ++x) {
     for (int y = range.start_y; y <= range.end_y; ++y) {
@@ -79,8 +80,8 @@ void turnOnSquare(std::vector<std::bitset<1000>> &lights, const command &comm) {
   }
 }
 
-void turnOffSquare(std::vector<std::bitset<1000>> &lights,
-                   const command &comm) {
+void turnOffSquareBits(std::vector<std::bitset<1000>> &lights,
+                       const command &comm) {
   adjustedRange range = getRange(comm);
   for (int x = range.start_x; x <= range.end_x; ++x) {
     for (int y = range.start_y; y <= range.end_y; ++y) {
@@ -148,13 +149,8 @@ command parseLine(const std::string &line) {
   return comm;
 }
 
-int main() {
-  std::vector<std::bitset<1000>> lights;
-  for (int i = 0; i < 1000; ++i) {
-    std::bitset<1000> layer;
-    layer.reset();
-    lights.push_back(layer);
-  }
+void part1() {
+  std::vector<std::bitset<1000>> lights(1000, std::bitset<1000>(0));
 
   std::ifstream stream("./06_input.txt");
   std::string line;
@@ -162,13 +158,13 @@ int main() {
     command currentCommand = parseLine(line);
     switch (currentCommand.op) {
     case on:
-      turnOnSquare(lights, currentCommand);
+      turnOnSquareBits(lights, currentCommand);
       break;
     case off:
-      turnOffSquare(lights, currentCommand);
+      turnOffSquareBits(lights, currentCommand);
       break;
     case toggle:
-      toggleSquare(lights, currentCommand);
+      toggleSquareBits(lights, currentCommand);
       break;
     case null:
       std::cout << "How?" << std::endl;
@@ -177,7 +173,76 @@ int main() {
   }
 
   int count = countLitLights(lights);
-  std::cout << "Answer is: " << count << std::endl;
+  std::cout << "Part 1 answer is: " << count << std::endl;
+}
 
-  return 0;
+void toggleSquareInts(std::vector<std::vector<int>> &lights,
+                      const command &comm) {
+  adjustedRange range = getRange(comm);
+  for (int x = range.start_x; x <= range.end_x; ++x) {
+    for (int y = range.start_y; y <= range.end_y; ++y) {
+      lights[x][y] += 2;
+    }
+  }
+}
+
+void turnOnSquareInts(std::vector<std::vector<int>> &lights,
+                      const command &comm) {
+  adjustedRange range = getRange(comm);
+  for (int x = range.start_x; x <= range.end_x; ++x) {
+    for (int y = range.start_y; y <= range.end_y; ++y) {
+      lights[x][y] += 1;
+    }
+  }
+}
+
+void turnOffSquareInts(std::vector<std::vector<int>> &lights,
+                       const command &comm) {
+  adjustedRange range = getRange(comm);
+  for (int x = range.start_x; x <= range.end_x; ++x) {
+    for (int y = range.start_y; y <= range.end_y; ++y) {
+      if (lights[x][y] > 0)
+        lights[x][y] -= 1;
+    }
+  }
+}
+
+int part2CountLights(std::vector<std::vector<int>> &lights) {
+  int res = 0;
+  for (auto row : lights) {
+    for (auto lightVal : row) {
+      res += lightVal;
+    }
+  }
+  return res;
+}
+
+void part2() {
+  std::vector<std::vector<int>> lights(1000, std::vector<int>(1000, 0));
+  std::ifstream stream("./06_input.txt");
+  std::string line;
+  while (std::getline(stream, line)) {
+    command currentCommand = parseLine(line);
+    switch (currentCommand.op) {
+    case on:
+      turnOnSquareInts(lights, currentCommand);
+      break;
+    case off:
+      turnOffSquareInts(lights, currentCommand);
+      break;
+    case toggle:
+      toggleSquareInts(lights, currentCommand);
+      break;
+    case null:
+      std::cout << "Also how?" << std::endl;
+      break;
+    }
+  }
+  int count = part2CountLights(lights);
+  std::cout << "Part 2 answer is: " << count << std::endl;
+}
+
+int main() {
+  part1();
+  part2();
 }
