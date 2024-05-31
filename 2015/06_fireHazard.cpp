@@ -177,7 +177,7 @@ int main() {
   }
 
   int count = countLitLights(lights);
-  std::cout << count << std::endl;
+  std::cout << "Answer is: " << count << std::endl;
 
   return 0;
 }
