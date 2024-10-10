@@ -73,9 +73,10 @@ line parseLine(std::string currentLine) {
 }
 
 struct node {
-  int value = -1;
+  uint16_t value = 0;
+  bool initialized = false;
   std::vector<std::shared_ptr<node>> parents;
-  std::shared_ptr<node> child;
+  std::vector<std::shared_ptr<node>> children;
   std::string operation;
   std::string childWire;
   std::vector<std::string> parentWires;
@@ -92,7 +93,8 @@ getOrCreateNode(std::unordered_map<std::string, std::shared_ptr<node>> &wiremap,
   return wiremap[wirename];
 }
 
-void buildGraph(std::vector<node> &nodes, const std::vector<line> &lines) {
+void buildGraph(std::vector<std::shared_ptr<node>> &nodes,
+                const std::vector<line> &lines) {
   assert(!lines.empty());
   assert(nodes.empty());
 
@@ -109,40 +111,153 @@ void buildGraph(std::vector<node> &nodes, const std::vector<line> &lines) {
     for (const std::string &inputWire : l.inputWires) {
       std::shared_ptr<node> parentNode = getOrCreateNode(wireMap, inputWire);
       outputNode->parents.push_back(parentNode);
+      parentNode->children.push_back(outputNode);
     }
 
     for (int number : l.numbers) {
       std::shared_ptr<node> literalNode = std::make_shared<node>("literal");
       literalNode->value = number;
+      literalNode->initialized = true;
       outputNode->parents.push_back(literalNode);
     }
   }
 
   for (const auto &pair : wireMap) {
-    nodes.push_back(*pair.second);
+    nodes.push_back(pair.second);
   }
 }
 
-void propogateValues(std::vector<node> &nodes) {}
+void handleOperation(node &n) {
+  if (n.operation == "ASSIGN") {
+    assert(n.parents.size() == 1);
+    n.value = n.parents[0]->value;
+    n.initialized = true;
+
+  } else if (n.operation == "AND") {
+    assert(n.parents.size() == 2);
+    n.value = n.parents[0]->value & n.parents[1]->value;
+    n.initialized = true;
+
+  } else if (n.operation == "OR") {
+    assert(n.parents.size() == 2);
+    n.value = n.parents[0]->value | n.parents[1]->value;
+    n.initialized = true;
+
+  } else if (n.operation == "NOT") {
+    assert(n.parents.size() == 1);
+    n.value = ~n.parents[0]->value;
+    n.initialized = true;
+
+  } else if (n.operation == "LSHIFT") {
+    assert(n.parents.size() == 2);
+    n.value = n.parents[0]->value << n.parents[1]->value;
+    n.initialized = true;
+
+  } else if (n.operation == "RSHIFT") {
+    assert(n.parents.size() == 2);
+    n.value = n.parents[0]->value >> n.parents[1]->value;
+    n.initialized = true;
+
+  } else {
+    std::cerr << "[ERROR] Unknown operation: " << n.operation << std::endl;
+    assert(false);
+  }
+}
+
+void propogateValues(std::vector<std::shared_ptr<node>> &nodes) {
+  assert(!nodes.empty());
+
+  enum machineState { finding, back, forward };
+  machineState state = finding;
+  std::shared_ptr<node> n = nodes[0];
+
+  for (;;) {
+    if (state == finding) {
+      bool foundNode = false;
+      for (auto &node : nodes) {
+        if (!node->initialized) {
+          n = node;
+          state = back;
+          foundNode = true;
+          break;
+        }
+      }
+      if (!foundNode)
+        break;
+    } else if (state == back) {
+      for (auto &parent : n->parents) {
+        if (!parent->initialized) {
+          n = parent;
+          break;
+        }
+        // both of the parents have values to push forward.
+        state = forward;
+      }
+    } else if (state == forward) {
+
+      bool uninitializedParent = false;
+      for (auto &parent : n->parents) {
+        if (!parent->initialized) {
+          uninitializedParent = true;
+        }
+      }
+      if (uninitializedParent) {
+        state = back;
+        continue;
+      }
+
+      handleOperation(*n);
+      if (!n->children.empty()) {
+        for (auto &child : n->children) {
+          if (!child->initialized) {
+            n = child;
+          }
+        }
+      } else {
+        state = finding;
+      }
+    } else {
+      assert(false);
+    }
+  }
+}
+
+void logWireValues(std::vector<std::shared_ptr<node>> &nodes) {
+  assert(!nodes.empty());
+  for (auto node : nodes) {
+    for (auto child : node->children) {
+      std::cout << child->childWire << " " << child->value << std::endl;
+    }
+  }
+}
 
 int main() {
+
+  std::cout << "Opening file" << std::endl;
   std::ifstream file("07_input.txt");
   // std::ifstream file("07_testInput.txt");
 
   std::string currentLine;
-
   if (!file.is_open()) {
     std::cerr << "Could not open file" << std::endl;
     return 1;
   }
 
+  std::cout << "Getting lines" << std::endl;
   std::vector<line> lines;
   while (std::getline(file, currentLine)) {
     lines.push_back(parseLine(currentLine));
   }
+  std::cout << "Closing file" << std::endl;
   file.close();
 
-  std::vector<node> nodes;
+  std::cout << "Building graph" << std::endl;
+  std::vector<std::shared_ptr<node>> nodes;
   buildGraph(nodes, lines);
+
+  std::cout << "Propogating values" << std::endl;
   propogateValues(nodes);
+
+  std::cout << "Wire values: " << std::endl;
+  logWireValues(nodes);
 }
