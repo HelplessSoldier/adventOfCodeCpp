@@ -1,6 +1,4 @@
-#include <algorithm>
 #include <cassert>
-#include <cinttypes>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -233,8 +231,8 @@ void logWireValues(std::vector<std::shared_ptr<node>> &nodes) {
 
 int main() {
 
-  std::cout << "Opening file" << std::endl;
-  std::ifstream file("07_input.txt");
+  // std::ifstream file("07_input.txt");
+  std::ifstream file("07_input2.txt");
   // std::ifstream file("07_testInput.txt");
 
   std::string currentLine;
@@ -243,21 +241,16 @@ int main() {
     return 1;
   }
 
-  std::cout << "Getting lines" << std::endl;
   std::vector<line> lines;
   while (std::getline(file, currentLine)) {
     lines.push_back(parseLine(currentLine));
   }
-  std::cout << "Closing file" << std::endl;
   file.close();
 
-  std::cout << "Building graph" << std::endl;
   std::vector<std::shared_ptr<node>> nodes;
   buildGraph(nodes, lines);
 
-  std::cout << "Propogating values" << std::endl;
   propogateValues(nodes);
 
-  std::cout << "Wire values: " << std::endl;
   logWireValues(nodes);
 }
