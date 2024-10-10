@@ -1,4 +1,5 @@
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -224,12 +225,16 @@ void logWireValues(std::vector<std::shared_ptr<node>> &nodes) {
   assert(!nodes.empty());
   for (auto node : nodes) {
     for (auto child : node->children) {
-      std::cout << child->childWire << " " << child->value << std::endl;
+      if (child->childWire == "a") {
+        std::cout << child->childWire << " " << child->value << std::endl;
+      }
     }
   }
 }
 
 int main() {
+
+  auto start = std::chrono::high_resolution_clock::now();
 
   // std::ifstream file("07_input.txt");
   std::ifstream file("07_input2.txt");
@@ -252,5 +257,12 @@ int main() {
 
   propogateValues(nodes);
 
+  auto end = std::chrono::high_resolution_clock::now();
+
   logWireValues(nodes);
+  std::cout << "finished in "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                     start)
+                   .count()
+            << " ms" << std::endl;
 }
