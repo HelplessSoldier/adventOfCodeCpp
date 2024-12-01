@@ -3,29 +3,22 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
 
 std::tuple<std::vector<int>, std::vector<int>> getInputs(std::string filepath) {
-  std::string line;
   std::fstream file(filepath);
 
-  std::vector<int> leftNums;
-  std::vector<int> rightNums;
-
-  while (getline(file, line)) {
-    std::istringstream stream(line);
-    int left, right;
-    if (stream >> left >> right) {
-      leftNums.push_back(left);
-      rightNums.push_back(right);
-    }
+  std::vector<int> leftNums, rightNums;
+  int left, right;
+  while (file >> left >> right) {
+    leftNums.push_back(left);
+    rightNums.push_back(right);
   }
   file.close();
 
-  return std::make_tuple(leftNums, rightNums);
+  return {leftNums, rightNums};
 }
 
 int part1(std::vector<int> leftNums, std::vector<int> rightNums) {
@@ -44,27 +37,20 @@ int part1(std::vector<int> leftNums, std::vector<int> rightNums) {
 int part2(std::vector<int> leftNums, std::vector<int> rightNums) {
   std::map<int, int> rightCount;
   for (int i = 0; i < rightNums.size(); ++i) {
-    if (rightCount.find(rightNums[i]) == rightCount.end()) {
-      rightCount[rightNums[i]] = 1;
-    } else {
-      rightCount[rightNums[i]] += 1;
-    }
+    ++rightCount[rightNums[i]];
   }
 
   int similarityScore = 0;
   for (int i = 0; i < leftNums.size(); ++i) {
     int left = leftNums[i];
-    int count = rightCount[left];
-    similarityScore += left * count;
+    similarityScore += left * rightCount[left];
   }
 
   return similarityScore;
 }
 
 int main() {
-  std::vector<int> leftNums;
-  std::vector<int> rightNums;
-
+  std::vector<int> leftNums, rightNums;
   std::tie(leftNums, rightNums) = getInputs("./01_input.txt");
 
   std::cout << "Part1: " << part1(leftNums, rightNums) << std::endl;
