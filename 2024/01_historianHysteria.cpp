@@ -27,8 +27,7 @@ int part1(std::vector<int> leftNums, std::vector<int> rightNums) {
 
   int sum = 0;
   for (int i = 0; i < leftNums.size(); ++i) {
-    int diff = std::abs(leftNums[i] - rightNums[i]);
-    sum += diff;
+    sum += std::abs(leftNums[i] - rightNums[i]);
   }
 
   return sum;
