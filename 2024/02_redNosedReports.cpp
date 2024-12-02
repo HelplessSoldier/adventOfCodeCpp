@@ -80,24 +80,8 @@ int part2(std::vector<std::vector<int>> input) {
   return result;
 };
 
-int duration(std::chrono::high_resolution_clock::time_point &start,
-             std::chrono::high_resolution_clock::time_point &end) {
-  return std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-      .count();
-}
-
 int main() {
-  using clock = std::chrono::high_resolution_clock;
-
   std::vector<std::vector<int>> input = loadInput("./02_input.txt");
-
-  auto startP1 = clock::now();
   std::cout << "Part 1: " << part1(input) << std::endl;
-  auto endP1 = clock::now();
-  std::cout << duration(startP1, endP1) << "µs" << std::endl;
-
-  auto startP2 = clock::now();
   std::cout << "Part 2: " << part2(input) << std::endl;
-  auto endP2 = clock::now();
-  std::cout << duration(startP2, endP2) << "µs" << std::endl;
 }
