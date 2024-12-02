@@ -73,9 +73,8 @@ int part1(const std::vector<std::vector<int>> &input) {
 int part2(const std::vector<std::vector<int>> &input) {
   int result = 0;
   for (const std::vector<int> &line : input) {
-    if (isSafeWithDamping(line)) {
+    if (isSafeWithDamping(line))
       result++;
-    }
   }
   return result;
 };
