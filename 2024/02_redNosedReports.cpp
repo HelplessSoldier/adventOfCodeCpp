@@ -14,8 +14,8 @@ std::vector<std::vector<int>> loadInput(std::string filepath) {
   while (getline(file, line)) {
     std::stringstream ss(line);
     std::vector<int> currLine;
-    int value;
 
+    int value;
     while (ss >> value) {
       currLine.push_back(value);
     }
