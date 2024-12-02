@@ -26,7 +26,7 @@ std::vector<std::vector<int>> loadInput(std::string filepath) {
   return data;
 }
 
-bool isSafe(std::vector<int> line) {
+bool isSafe(const std::vector<int> &line) {
   int direction = 0; // -1 for decreasing, 1 for increasing
 
   for (int i = 0; i < line.size() - 1; ++i) {
@@ -47,7 +47,7 @@ bool isSafe(std::vector<int> line) {
   return true;
 }
 
-bool isSafeWithDamping(std::vector<int> line) {
+bool isSafeWithDamping(const std::vector<int> &line) {
   if (isSafe(line))
     return true;
 
@@ -61,18 +61,18 @@ bool isSafeWithDamping(std::vector<int> line) {
   return false;
 }
 
-int part1(std::vector<std::vector<int>> input) {
+int part1(const std::vector<std::vector<int>> &input) {
   int result = 0;
-  for (std::vector<int> line : input) {
+  for (const std::vector<int> &line : input) {
     if (isSafe(line))
       result++;
   }
   return result;
 }
 
-int part2(std::vector<std::vector<int>> input) {
+int part2(const std::vector<std::vector<int>> &input) {
   int result = 0;
-  for (std::vector<int> line : input) {
+  for (const std::vector<int> &line : input) {
     if (isSafeWithDamping(line)) {
       result++;
     }
@@ -80,8 +80,24 @@ int part2(std::vector<std::vector<int>> input) {
   return result;
 };
 
+int duration(std::chrono::high_resolution_clock::time_point &start,
+             std::chrono::high_resolution_clock::time_point &end) {
+  return std::chrono::duration_cast<std::chrono::microseconds>(end - start)
+      .count();
+}
+
 int main() {
+  using clock = std::chrono::high_resolution_clock;
+
   std::vector<std::vector<int>> input = loadInput("./02_input.txt");
+
+  auto startP1 = clock::now();
   std::cout << "Part 1: " << part1(input) << std::endl;
+  auto endP1 = clock::now();
+  std::cout << duration(startP1, endP1) << "µs" << std::endl; // 55us-ish
+
+  auto startP2 = clock::now();
   std::cout << "Part 2: " << part2(input) << std::endl;
+  auto endP2 = clock::now();
+  std::cout << duration(startP2, endP2) << "µs" << std::endl; // 1200us-ish
 }
