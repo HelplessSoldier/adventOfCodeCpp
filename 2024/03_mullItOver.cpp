@@ -27,6 +27,7 @@ std::vector<std::pair<int, int>> inputNums(const std::string &input,
   for (int i = 0; i < input.size(); ++i) {
     // do and don't
     if (respectConditionals && input[i] == 'd') {
+
       int conditionalEnd = i;
       while (conditionalEnd < input.size() && input[conditionalEnd] != ')') {
         ++conditionalEnd;
@@ -44,7 +45,6 @@ std::vector<std::pair<int, int>> inputNums(const std::string &input,
     if (enabledInputs && input[i] == 'm') {
 
       int nextClosingBrace = i;
-
       while (nextClosingBrace < input.size() &&
              input[nextClosingBrace] != ')') {
         ++nextClosingBrace;
