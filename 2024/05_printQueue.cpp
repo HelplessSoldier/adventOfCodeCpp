@@ -83,15 +83,6 @@ separateIntoValidAndInvalid(
   return {valids, invalids};
 }
 
-int part1(const std::vector<std::vector<int>> &validLines) {
-  int result = 0;
-  for (const std::vector<int> &line : validLines) {
-    int middle = line.size() / 2;
-    result += line[middle];
-  }
-  return result;
-}
-
 std::vector<int>
 fixLine(const std::vector<int> &line,
         const std::unordered_map<int, std::set<int>> &orderRulesMap) {
@@ -123,6 +114,15 @@ fixLine(const std::vector<int> &line,
     }
   }
   return fixedLine;
+}
+
+int part1(const std::vector<std::vector<int>> &validLines) {
+  int result = 0;
+  for (const std::vector<int> &line : validLines) {
+    int middle = line.size() / 2;
+    result += line[middle];
+  }
+  return result;
 }
 
 int part2(const std::vector<std::vector<int>> &invalidLines,
