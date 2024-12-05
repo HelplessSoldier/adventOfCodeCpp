@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -8,12 +9,12 @@
 #include <vector>
 
 std::tuple<std::vector<std::vector<int>>,
-           std::unordered_map<int, std::vector<int>>>
+           std::unordered_map<int, std::set<int>>>
 loadData(std::string filepath) {
   std::string line;
   std::fstream file(filepath);
 
-  std::unordered_map<int, std::vector<int>> orderRulesMap;
+  std::unordered_map<int, std::set<int>> orderRulesMap;
   while (getline(file, line)) {
     if (line.empty())
       break;
@@ -25,7 +26,7 @@ loadData(std::string filepath) {
       currLine.push_back(substr);
     }
 
-    orderRulesMap[std::stoi(currLine[0])].push_back(std::stoi(currLine[1]));
+    orderRulesMap[std::stoi(currLine[0])].insert(std::stoi(currLine[1]));
   }
 
   std::vector<std::vector<int>> printOrders;
@@ -44,7 +45,7 @@ loadData(std::string filepath) {
 
 bool isValidLineP1(
     const std::vector<int> &line,
-    const std::unordered_map<int, std::vector<int>> &orderRulesMap) {
+    const std::unordered_map<int, std::set<int>> &orderRulesMap) {
   std::unordered_set<int> seen;
   for (const int value : line) {
     seen.insert(value);
@@ -54,7 +55,7 @@ bool isValidLineP1(
       continue;
     }
 
-    const std::vector<int> &cannotPrecede = it->second;
+    const std::set<int> &cannotPrecede = it->second;
     for (const int &val : cannotPrecede) {
       if (seen.find(val) != seen.end()) {
         // a value preceded this one that broke the ordering rules
@@ -69,7 +70,7 @@ bool isValidLineP1(
 std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>>
 separateIntoValidAndInvalid(
     const std::vector<std::vector<int>> &printOrders,
-    const std::unordered_map<int, std::vector<int>> &orderRulesMap) {
+    const std::unordered_map<int, std::set<int>> &orderRulesMap) {
 
   std::vector<std::vector<int>> valids, invalids;
   for (const std::vector<int> &line : printOrders) {
@@ -93,7 +94,7 @@ int part1(const std::vector<std::vector<int>> &validLines) {
 
 std::vector<int>
 fixLine(const std::vector<int> &line,
-        const std::unordered_map<int, std::vector<int>> &orderRulesMap) {
+        const std::unordered_map<int, std::set<int>> &orderRulesMap) {
 
   std::vector<int> fixedLine(line);
 
@@ -107,7 +108,7 @@ fixLine(const std::vector<int> &line,
     for (int i = 0; i < fixedLine.size(); ++i) {
       auto it = orderRulesMap.find(fixedLine[i]);
       if (it != orderRulesMap.end()) {
-        const std::vector<int> &cannotPrecede = it->second;
+        const std::set<int> &cannotPrecede = it->second;
         for (const int &val : cannotPrecede) {
           if (valueToIdx.find(val) != valueToIdx.end()) {
             int otherIdx = valueToIdx[val];
@@ -125,7 +126,7 @@ fixLine(const std::vector<int> &line,
 }
 
 int part2(const std::vector<std::vector<int>> &invalidLines,
-          const std::unordered_map<int, std::vector<int>> &orderRulesMap) {
+          const std::unordered_map<int, std::set<int>> &orderRulesMap) {
   int result = 0;
 
   for (const std::vector<int> &line : invalidLines) {
