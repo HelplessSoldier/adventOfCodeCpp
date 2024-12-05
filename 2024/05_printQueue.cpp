@@ -1,3 +1,4 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -139,11 +140,12 @@ int part2(const std::vector<std::vector<int>> &invalidLines,
 }
 
 int main() {
-
   auto [printOrders, orderRulesMap] = loadData("./05_input.txt");
+
   auto [validLines, invalidLines] =
       separateIntoValidAndInvalid(printOrders, orderRulesMap);
 
   std::cout << "Part 1: " << part1(validLines) << std::endl;
-  std::cout << "Part 2: " << part2(invalidLines, orderRulesMap) << std::endl;
+
+  std::cout << "Part 2: " << part2(invalidLines, orderRulesMap) << " ";
 }
