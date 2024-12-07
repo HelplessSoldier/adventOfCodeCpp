@@ -1,4 +1,5 @@
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -187,6 +188,7 @@ bool infiniteLoop(const mat2i &board, GuardState guardState) {
 int part2(const mat2i &board, const mat2i &visitedOnNormalPath,
           const GuardState initialState) {
 
+  mat2i alteredBoard = board;
   int result = 0;
   for (int y = 0; y < board.size(); ++y) {
     for (int x = 0; x < board[0].size(); ++x) {
@@ -199,11 +201,12 @@ int part2(const mat2i &board, const mat2i &visitedOnNormalPath,
         // no reason to check a location that the guard doesn't reach
         continue;
 
-      mat2i alteredBoard = board;
       alteredBoard[y][x] = 1;
 
       if (infiniteLoop(alteredBoard, initialState))
         result++;
+
+      alteredBoard[y][x] = 0;
     }
   }
 
