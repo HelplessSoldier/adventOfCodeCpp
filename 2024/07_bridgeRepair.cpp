@@ -136,8 +136,7 @@ bool p2Valid(const InputLine &input) {
   int maxPermutations = std::pow(3, numOps);
 
   for (int i = 0; i < maxPermutations; ++i) {
-    long evaluated = evaluate(input.inputs, ops);
-    if (evaluated == input.target) {
+    if (evaluate(input.inputs, ops) == input.target) {
       return true;
     }
     p2PermuteOperations(ops);
