@@ -165,7 +165,6 @@ void findAntinodes(const std::vector<Antenna> &group, mat2i &nodeMap,
 }
 
 int solve(InputData input, bool part1) {
-  sortInput(input);
   mat2i nodeMap(input.boardHeight, std::vector<int>(input.boardWidth, 0));
   std::vector<std::vector<Antenna>> groupedAntennas =
       splitAntennasByGroup(input);
@@ -191,6 +190,9 @@ int main() {
 
   InputData input = loadInput("./08_input.txt");
   InputData testInput = getTestInput();
+
+  sortInput(input);
+  sortInput(testInput);
 
   std::cout << "Test 1: " << solve(testInput, /*part1=*/true) << std::endl;
   std::cout << "Part 1: " << solve(input, /*part1=*/true) << std::endl;
