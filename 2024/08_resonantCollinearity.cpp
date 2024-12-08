@@ -202,5 +202,5 @@ int main() {
             << std::chrono::duration_cast<std::chrono::microseconds>(end -
                                                                      start)
                    .count()
-            << "us" << std::endl;
+            << "us" << std::endl; // 1850us
 }
