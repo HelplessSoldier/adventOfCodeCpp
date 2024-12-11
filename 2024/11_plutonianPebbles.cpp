@@ -41,9 +41,9 @@ bool evenDigits(const long &value) { return digitCount(value) % 2 == 0; }
 
 std::vector<long> splitEven(const long &value) {
   int halfWidth = digitCount(value) / 2;
-  long long rightVal = 0;
-  long long leftVal = value;
-  long long place = 1;
+  long rightVal = 0;
+  long leftVal = value;
+  long place = 1;
   for (int i = 0; i < halfWidth; ++i) {
     int digit = leftVal % 10;
     leftVal /= 10;
@@ -66,13 +66,13 @@ struct longPairHash {
 
 typedef std::unordered_map<std::pair<long, int>, long, longPairHash> memo;
 
-long long pebbleCount(const std::vector<long> &input, const int numBlinks,
-                      memo &memoMap) {
+long pebbleCount(const std::vector<long> &input, const int numBlinks,
+                 memo &memoMap) {
   if (numBlinks == 0) {
     return input.size();
   }
 
-  long long result = 0;
+  long result = 0;
   for (const long &value : input) {
     if (memoMap.find({value, numBlinks}) != memoMap.end()) {
       // dejavu
@@ -80,15 +80,15 @@ long long pebbleCount(const std::vector<long> &input, const int numBlinks,
       continue;
     }
     if (value == 0) {
-      long long count = pebbleCount({1}, numBlinks - 1, memoMap);
+      long count = pebbleCount({1}, numBlinks - 1, memoMap);
       memoMap[{value, numBlinks}] = count;
       result += count;
     } else if (evenDigits(value)) {
-      long long count = pebbleCount(splitEven(value), numBlinks - 1, memoMap);
+      long count = pebbleCount(splitEven(value), numBlinks - 1, memoMap);
       memoMap[{value, numBlinks}] = count;
       result += count;
     } else {
-      long long count = pebbleCount({value * 2024}, numBlinks - 1, memoMap);
+      long count = pebbleCount({value * 2024}, numBlinks - 1, memoMap);
       memoMap[{value, numBlinks}] = count;
       result += count;
     }
@@ -96,7 +96,7 @@ long long pebbleCount(const std::vector<long> &input, const int numBlinks,
   return result;
 }
 
-long long solve(const std::vector<long> &input, const int numBlinks) {
+long solve(const std::vector<long> &input, const int numBlinks) {
   memo memoMap;
   return pebbleCount(input, numBlinks, memoMap);
 }
