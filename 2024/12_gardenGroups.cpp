@@ -56,10 +56,6 @@ int countVertices(const mat2i &input, int i, int j) {
   // using 0 as non-region spaces and 1 for the region
   mat2i localAreaMap(3, std::vector<int>(3, -1));
 
-  int encoded = encodeMatrix(localAreaMap);
-  if (memo.find(encoded) != memo.end())
-    return memo[encoded];
-
   int label = input[i][j];
   for (int di = -1; di <= 1; ++di) {
     for (int dj = -1; dj <= 1; ++dj) {
@@ -76,6 +72,11 @@ int countVertices(const mat2i &input, int i, int j) {
         localAreaMap[areaMapI][areaMapj] = 0;
       }
     }
+  }
+
+  int encoded = encodeMatrix(localAreaMap);
+  if (memo.find(encoded) != memo.end()) {
+    return memo[encoded];
   }
 
   auto rotateMatrix = [&]() {
