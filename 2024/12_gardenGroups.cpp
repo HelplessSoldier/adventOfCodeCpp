@@ -57,9 +57,8 @@ int countVertices(const mat2i &input, int i, int j) {
   mat2i localAreaMap(3, std::vector<int>(3, -1));
 
   int encoded = encodeMatrix(localAreaMap);
-  if (memo.find(encoded) != memo.end()) {
+  if (memo.find(encoded) != memo.end())
     return memo[encoded];
-  }
 
   int label = input[i][j];
   for (int di = -1; di <= 1; ++di) {
