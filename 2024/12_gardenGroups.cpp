@@ -1,8 +1,10 @@
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 typedef std::vector<std::vector<int>> mat2i;
@@ -34,11 +36,30 @@ bool topLeftVertConvex(const mat2i &localAreaMap) {
          localAreaMap[1][0] == 1;
 };
 
+uint16_t encodeMatrix(const mat2i &matrix) {
+  uint16_t encoded = 0;
+  int bitindex = 0;
+  for (const std::vector<int> &row : matrix) {
+    for (const int &val : row) {
+      encoded |= (val << bitindex);
+      ++bitindex;
+    }
+  }
+  return encoded;
+}
+
 int countVertices(const mat2i &input, int i, int j) {
+  static std::unordered_map<int, int> memo;
+
   int result = 0;
 
   // using 0 as non-region spaces and 1 for the region
   mat2i localAreaMap(3, std::vector<int>(3, -1));
+
+  int encoded = encodeMatrix(localAreaMap);
+  if (memo.find(encoded) != memo.end()) {
+    return memo[encoded];
+  }
 
   int label = input[i][j];
   for (int di = -1; di <= 1; ++di) {
@@ -78,6 +99,8 @@ int countVertices(const mat2i &input, int i, int j) {
     if (topLeftVertConvex(localAreaMap) || topLeftVertConcave(localAreaMap))
       result++;
   }
+
+  memo[encoded] = result;
 
   return result;
 }
