@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -141,14 +142,23 @@ std::pair<int, int> solve(const mat2i &input) {
 }
 
 int main() {
+
+  auto start = std::chrono::high_resolution_clock::now();
+
   mat2i input = loadInput("./12_input.txt");
   mat2i testInput = loadInput("./12_testInput.txt");
 
   auto [p1TestOutput, p2TestOutput] = solve(testInput);
   auto [p1Output, p2Output] = solve(input);
 
+  auto end = std::chrono::high_resolution_clock::now();
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
+
   std::cout << "Test 1: " << p1TestOutput << std::endl;
   std::cout << "Part 1: " << p1Output << std::endl;
   std::cout << "Test 2: " << p2TestOutput << std::endl;
   std::cout << "Part 2: " << p2Output << std::endl;
+
+  std::cout << "Time: " << time << "ms" << std::endl;
 }
