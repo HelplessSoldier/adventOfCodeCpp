@@ -85,13 +85,12 @@ long long cost1(const InputBlock &in) {
   long long n_num = (in.p.x - m * in.b.x);
   long long n = n_num / in.a.x;
 
-  // clang-format off
-  bool correct = n * in.a.x + m * in.b.x == in.p.x &&
-                 n * in.a.y + m * in.b.y == in.p.y;
-  // clang-format on
-  if (correct) {
+  bool correct =
+      n * in.a.x + m * in.b.x == in.p.x && n * in.a.y + m * in.b.y == in.p.y;
+
+  if (correct)
     return n * aCost + m * bCost;
-  }
+
   return 0;
 }
 
@@ -163,10 +162,10 @@ int main() {
   /*
 ❯ ./13
 With cost 1
-Test 1: 480
-Part 1: 36954
+Test 1: 480             <- correct
+Part 1: 36954           <- correct
 Test 2: 459236326669
-Part 2: 78751208820885
+Part 2: 78751208820885  <- incorrect??
 
 With cost 2
 Test 1: 480
