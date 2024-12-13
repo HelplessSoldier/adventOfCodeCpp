@@ -66,11 +66,12 @@ std::vector<InputBlock> loadInput(std::string filepath) {
 
     ++lineOffset;
   }
+  result.push_back(current);
 
   return result;
 }
 
-long long cost1(const InputBlock &in) {
+long long cost(const InputBlock &in) {
   const long long aCost = 3;
   const long long bCost = 1;
 
@@ -94,35 +95,7 @@ long long cost1(const InputBlock &in) {
   return 0;
 }
 
-long long cost2(const InputBlock &in) {
-  const long long aCost = 3;
-  const long long bCost = 1;
-
-  //            C = AX
-  // [c_x, c_y]^T = [[a_x, b_x],[a_y, b_y]][n, m]^T
-  //
-  //        X = A^-1C
-  // X = 1 / det(A)[[b_y, -b_x],[-a_y, a_x]][c_x, c_y]^T
-
-  long double detA = in.a.x * in.b.y - in.b.x * in.a.y;
-  if (detA == 0)
-    return 0;
-
-  long double n = (in.p.x * in.b.y) / detA - (in.p.y * in.b.x) / detA;
-  long double m = (-1 * in.p.x * in.a.y) / detA + (in.p.y * in.a.x) / detA;
-
-  n = std::round(n);
-  m = std::round(m);
-
-  bool correct =
-      n * in.a.y + m * in.b.y == in.p.y && n * in.a.x + m * in.b.x == in.p.x;
-  if (!correct)
-    return 0;
-
-  return n * aCost + m * bCost;
-}
-
-long long solve(std::vector<InputBlock> input, bool part2, int costFn) {
+long long solve(std::vector<InputBlock> input, bool part2) {
   long long result = 0;
 
   if (part2) {
@@ -133,11 +106,7 @@ long long solve(std::vector<InputBlock> input, bool part2, int costFn) {
   }
 
   for (const InputBlock &block : input) {
-    if (costFn == 1) {
-      result += cost1(block);
-    } else if (costFn == 2) {
-      result += cost2(block);
-    }
+    result += cost(block);
   }
 
   return result;
@@ -147,30 +116,8 @@ int main() {
   std::vector<InputBlock> testInput = loadInput("./13_testInput.txt");
   std::vector<InputBlock> input = loadInput("./13_input.txt");
 
-  std::cout << "With cost 1" << std::endl;
-  std::cout << "Test 1: " << solve(testInput, false, 1) << std::endl;
-  std::cout << "Part 1: " << solve(input, false, 1) << std::endl;
-  std::cout << "Test 2: " << solve(testInput, true, 1) << std::endl;
-  std::cout << "Part 2: " << solve(input, true, 1) << "\n" << std::endl;
-
-  std::cout << "With cost 2" << std::endl;
-  std::cout << "Test 1: " << solve(testInput, false, 2) << std::endl;
-  std::cout << "Part 1: " << solve(input, false, 2) << std::endl;
-  std::cout << "Test 2: " << solve(testInput, true, 2) << std::endl;
-  std::cout << "Part 2: " << solve(input, true, 2) << std::endl;
-
-  /*
-❯ ./13
-With cost 1
-Test 1: 480             <- correct
-Part 1: 36954           <- correct
-Test 2: 459236326669
-Part 2: 78751208820885  <- incorrect??
-
-With cost 2
-Test 1: 480
-Part 1: 36954
-Test 2: 459236326669
-Part 2: 78751208820885
-*/
+  std::cout << "Test 1: " << solve(testInput, false) << std::endl;
+  std::cout << "Part 1: " << solve(input, false) << std::endl;
+  std::cout << "Test 2: " << solve(testInput, true) << std::endl;
+  std::cout << "Part 2: " << solve(input, true) << "\n" << std::endl;
 }
