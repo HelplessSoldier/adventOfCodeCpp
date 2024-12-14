@@ -127,7 +127,7 @@ bool possibleTree(std::vector<Robot> &bots, int boardWidth, int boardHeight) {
     bool verticalLine = true;
     for (int i = 0; i < 5; ++i) {
       if (std::find_if(bots.begin(), bots.end(), [&](Robot bot) {
-            return bot.position.y == yPos + i && bot.position.x == xPos;
+            return bot.position.y == yPos + i && bot.position.x == xPos + i;
           }) == bots.end()) {
         verticalLine = false;
       }
