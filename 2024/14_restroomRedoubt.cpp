@@ -102,6 +102,7 @@ long part1(std::vector<Robot> bots, bool test) {
 
 void visualizeBoard(const std::vector<Robot> &bots, int second, int boardHeight,
                     int boardWidth) {
+
   std::vector<std::string> board(boardHeight, std::string(boardWidth, '.'));
 
   for (const auto &bot : bots) {
@@ -116,6 +117,7 @@ void visualizeBoard(const std::vector<Robot> &bots, int second, int boardHeight,
   for (int row = 0; row < boardHeight; ++row) {
     std::cout << board[row] << "\n";
   }
+
   std::cout << "\n";
   std::cout << "Second " << second + 1 << std::endl;
 }
@@ -172,5 +174,5 @@ int main() {
   std::cout << "Test 1: " << part1(testInput, true) << std::endl;
   std::cout << "Part 1: " << part1(input, false) << std::endl;
 
-  part2(input); // found it at 8149 (8148 + 1)
+  part2(input); // found it at 8149
 }
