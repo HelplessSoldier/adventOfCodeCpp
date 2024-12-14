@@ -109,9 +109,7 @@ void visualizeBoard(const std::vector<Robot> &bots, int second, int boardHeight,
     int x = bot.position.x;
     int y = bot.position.y;
 
-    if (x >= 0 && x < boardWidth && y >= 0 && y < boardHeight) {
-      board[y][x] = 'R';
-    }
+    board[y][x] = 'R';
   }
 
   for (int row = 0; row < boardHeight; ++row) {
