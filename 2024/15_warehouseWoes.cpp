@@ -1,6 +1,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -103,11 +104,14 @@ void makeMove(WarehouseState &state, int moveIndex) {
   state.roboLoc.y += state.roboMoves[moveIndex].y;
 }
 
-long boardScoreP1(const WarehouseState &input) {
+long boardScore(const WarehouseState &input, bool part1) {
   long result = 0;
+
+  char searchChar = part1 ? 'O' : '[';
+
   for (int i = 0; i < input.board.size(); ++i) {
     for (int j = 0; j < input.board[0].size(); ++j) {
-      if (input.board[i][j] == 'O') {
+      if (input.board[i][j] == searchChar) {
         result += 100 * i + j;
       }
     }
@@ -146,7 +150,7 @@ long part1(WarehouseState input) {
       makeMove(input, i);
     }
   }
-  return boardScoreP1(input);
+  return boardScore(input, true);
 }
 
 WarehouseState loadInputPart2(std::string filepath) {
@@ -216,18 +220,82 @@ WarehouseState loadInputPart2(std::string filepath) {
   return result;
 }
 
-bool canMakeMoveP2Vertical(const WarehouseState &input, int moveIndex) {
-  // search all connected boxes until either find wall, or exhaust boxes
-  std::cerr << "canMakeMoveP2Vertical not implemented" << std::endl;
+bool canMakeMoveP2Vertical(const WarehouseState &input, int moveIndex,
+                           std::vector<std::pair<Vec2, char>> &boxLocations) {
+
+  Vec2 roboPos = input.roboLoc;
+  Vec2 roboDel = input.roboMoves[moveIndex];
+
+  assert(roboDel.x == 0);
+
+  char immediateNextChar =
+      input.board[roboPos.y + roboDel.y][roboPos.x + roboDel.x];
+
+  if (immediateNextChar == '.') {
+    return true;
+  } else if (immediateNextChar == '#') {
+    return false;
+  }
+
+  std::stack<Vec2> boxIndices;
+  assert(immediateNextChar == '[' ||
+         immediateNextChar == ']' &&
+             "Unecpected char in canMakeMoveP2Vertical");
+
+  boxIndices.push({roboPos.x, roboPos.y});
+
+  while (true) {
+
+    if (boxIndices.empty()) {
+      return true;
+    }
+
+    Vec2 nextIndex = boxIndices.top();
+    boxIndices.pop();
+    nextIndex.y += roboDel.y;
+    char nextChar = input.board[nextIndex.y][nextIndex.x];
+
+    if (nextChar == ']') {
+      boxLocations.push_back({nextIndex, ']'});
+      boxLocations.push_back({{nextIndex.x - 1, nextIndex.y}, '['});
+      boxIndices.push(nextIndex);
+      boxIndices.push({nextIndex.x - 1, nextIndex.y});
+    } else if (nextChar == '[') {
+      boxLocations.push_back({nextIndex, '['});
+      boxLocations.push_back({{nextIndex.x + 1, nextIndex.y}, ']'});
+      boxIndices.push(nextIndex);
+      boxIndices.push({nextIndex.x + 1, nextIndex.y});
+    } else if (nextChar == '#') {
+      return false;
+    }
+  }
+
   return false;
 }
 
-void makeMoveP2Vertical(WarehouseState &input, int moveIndex) {
-  // add all connected boxes to some data structure, clone it,
-  // move all of one structure by deltaY, delete unmoved structure
-  // from the board, then replace the boxes from the moved structure.
-  // finally move the robot and its location
-  std::cerr << "makeMoveP2Vertical not implemented" << std::endl;
+void makeMoveP2Vertical(WarehouseState &input, int moveIndex,
+                        std::vector<std::pair<Vec2, char>> boxLocations) {
+  int delY = input.roboMoves[moveIndex].y;
+
+  std::vector<std::pair<Vec2, char>> newBoxLocations;
+
+  for (const auto &boxLoc : boxLocations) {
+    std::pair<Vec2, char> newBox = boxLoc;
+    newBox.first.y += delY;
+    newBoxLocations.push_back(newBox);
+  }
+
+  for (const auto &boxLoc : boxLocations) {
+    input.board[boxLoc.first.y][boxLoc.first.x] = '.';
+  }
+
+  for (const auto &boxLoc : newBoxLocations) {
+    input.board[boxLoc.first.y][boxLoc.first.x] = boxLoc.second;
+  }
+
+  input.board[input.roboLoc.y][input.roboLoc.x] = '.';
+  input.roboLoc.y += delY;
+  input.board[input.roboLoc.y][input.roboLoc.x] = '@';
 }
 
 long part2(WarehouseState input) {
@@ -244,13 +312,16 @@ long part2(WarehouseState input) {
         makeMove(input, i);
       }
     } else {
-      if (canMakeMoveP2Vertical(input, i)) {
-        makeMoveP2Vertical(input, i);
+      std::vector<std::pair<Vec2, char>> boxLocations;
+      if (canMakeMoveP2Vertical(input, i, boxLocations)) {
+        makeMoveP2Vertical(input, i, boxLocations);
       }
     }
+
+    std::cin.get();
   }
 
-  return -1;
+  return boardScore(input, false);
 }
 
 int main() {
@@ -262,4 +333,5 @@ int main() {
   std::cout << "Test 1: " << part1(testInput) << std::endl;
   std::cout << "Part 1: " << part1(input) << std::endl;
   std::cout << "Test 2: " << part2(p2TestInput) << std::endl;
+  std::cout << "Part 2: " << part2(p2input) << std::endl;
 }
