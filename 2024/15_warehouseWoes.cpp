@@ -216,16 +216,36 @@ WarehouseState loadInputPart2(std::string filepath) {
   return result;
 }
 
+bool canMakeMoveP2Vertical(const WarehouseState &input, int moveIndex) {
+  // search all connected boxes until either find wall, or exhaust boxes
+  std::cerr << "canMakeMoveP2Vertical not implemented" << std::endl;
+  return false;
+}
+
+void makeMoveP2Vertical(WarehouseState &input, int moveIndex) {
+  // add all connected boxes to some data structure, clone it,
+  // move all of one structure by deltaY, delete unmoved structure
+  // from the board, then replace the boxes from the moved structure.
+  // finally move the robot and its location
+  std::cerr << "makeMoveP2Vertical not implemented" << std::endl;
+}
+
 long part2(WarehouseState input) {
-  logBoard(input, 0);
 
   for (int i = 0; i < input.roboMoves.size(); ++i) {
+    logBoard(input, 0);
+
     int delX = input.roboMoves[i].x;
     int delY = input.roboMoves[i].y;
 
-    if (delX == 0) {
+    if (delY == 0) {
       // nothing changed for the horizontal movements. just use p1
       if (canMakeMove(input, i)) {
+        makeMove(input, i);
+      }
+    } else {
+      if (canMakeMoveP2Vertical(input, i)) {
+        makeMoveP2Vertical(input, i);
       }
     }
   }
