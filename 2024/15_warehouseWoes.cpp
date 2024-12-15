@@ -2,19 +2,14 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <vector>
 
 struct Vec2 {
   int x, y;
 };
 
-enum BoardSquareTypes { EMPTY, ROBOT, WALL, BOX };
-
-typedef std::vector<std::vector<BoardSquareTypes>> Board;
-
 struct WarehouseState {
-  Board board;
+  std::vector<std::vector<char>> board;
   Vec2 roboLoc;
   std::vector<Vec2> roboMoves;
 };
@@ -31,24 +26,9 @@ WarehouseState loadInput(std::string filepath) {
     if (line.empty())
       break;
 
-    std::vector<BoardSquareTypes> currLine;
+    std::vector<char> currLine;
     for (const auto &c : line) {
-      switch (c) {
-      case '@':
-        currLine.push_back(ROBOT);
-        break;
-      case '.':
-        currLine.push_back(EMPTY);
-        break;
-      case '#':
-        currLine.push_back(WALL);
-        break;
-      case 'O':
-        currLine.push_back(BOX);
-        break;
-      default:
-        assert(false && "Unexpected board char");
-      }
+      currLine.push_back(c);
     }
     result.board.push_back(currLine);
   }
@@ -77,7 +57,7 @@ WarehouseState loadInput(std::string filepath) {
 
   for (int i = 0; i < result.board.size(); ++i) {
     for (int j = 0; j < result.board[0].size(); ++j) {
-      if (result.board[i][j] == ROBOT) {
+      if (result.board[i][j] == '@') {
         result.roboLoc = {j, i};
       }
     }
@@ -88,10 +68,10 @@ WarehouseState loadInput(std::string filepath) {
 
 bool canMakeMove(const WarehouseState &state, int moveIndex) {
   Vec2 curr = state.roboLoc;
-  while (state.board[curr.y][curr.x] != WALL) {
+  while (state.board[curr.y][curr.x] != '#') {
     curr.x += state.roboMoves[moveIndex].x;
     curr.y += state.roboMoves[moveIndex].y;
-    if (state.board[curr.y][curr.x] == EMPTY) {
+    if (state.board[curr.y][curr.x] == '.') {
       return true;
     }
   }
@@ -102,7 +82,7 @@ void makeMove(WarehouseState &state, int moveIndex) {
   Vec2 start = state.roboLoc;
   Vec2 end = start;
   while (true) {
-    if (state.board[end.y][end.x] == EMPTY) {
+    if (state.board[end.y][end.x] == '.') {
       break;
     }
     end.y += state.roboMoves[moveIndex].y;
@@ -117,17 +97,17 @@ void makeMove(WarehouseState &state, int moveIndex) {
     end = previousSquare;
   }
 
-  state.board[state.roboLoc.y][state.roboLoc.x] = EMPTY;
+  state.board[state.roboLoc.y][state.roboLoc.x] = '.';
 
   state.roboLoc.x += state.roboMoves[moveIndex].x;
   state.roboLoc.y += state.roboMoves[moveIndex].y;
 }
 
-long boardScore(const WarehouseState &input) {
+long boardScoreP1(const WarehouseState &input) {
   long result = 0;
   for (int i = 0; i < input.board.size(); ++i) {
     for (int j = 0; j < input.board[0].size(); ++j) {
-      if (input.board[i][j] == BOX) {
+      if (input.board[i][j] == 'O') {
         result += 100 * i + j;
       }
     }
@@ -154,48 +134,112 @@ void logBoard(WarehouseState input, int moveIndex) {
 
   for (auto line : input.board) {
     for (auto val : line) {
-      char c;
-      switch (val) {
-      case WALL:
-        std::cout << '#';
-        break;
-      case ROBOT:
-        std::cout << '@';
-        break;
-      case EMPTY:
-        std::cout << '.';
-        break;
-      case BOX:
-        std::cout << 'O';
-        break;
-      }
+      std::cout << val;
     }
     std::cout << std::endl;
   }
 }
 
-long part1(WarehouseState input, bool visualize) {
-
+long part1(WarehouseState input) {
   for (int i = 0; i < input.roboMoves.size(); ++i) {
-    if (visualize)
-      logBoard(input, i);
-
     if (canMakeMove(input, i)) {
       makeMove(input, i);
     }
+  }
+  return boardScoreP1(input);
+}
 
-    if (visualize) {
-      // std::cin.get();
-      std::this_thread::sleep_for(std::chrono::milliseconds(20));
+WarehouseState loadInputPart2(std::string filepath) {
+  WarehouseState result;
+  std::fstream file(filepath);
+  std::string line;
+  while (true) {
+    getline(file, line);
+    if (line.empty())
+      break;
+
+    std::vector<char> curr;
+    for (const auto &c : line) {
+      switch (c) {
+      case '.':
+        curr.push_back('.');
+        curr.push_back('.');
+        break;
+      case '#':
+        curr.push_back('#');
+        curr.push_back('#');
+        break;
+      case 'O':
+        curr.push_back('[');
+        curr.push_back(']');
+        break;
+      case '@':
+        curr.push_back('@');
+        curr.push_back('.');
+        break;
+      default:
+        assert(false && "Unexpected char in loadInputPart2");
+      }
+    }
+    result.board.push_back(curr);
+  }
+
+  while (getline(file, line)) {
+    for (const auto &c : line) {
+      switch (c) {
+      case '^':
+        result.roboMoves.push_back({0, -1});
+        break;
+      case 'v':
+        result.roboMoves.push_back({0, 1});
+        break;
+      case '<':
+        result.roboMoves.push_back({-1, 0});
+        break;
+      case '>':
+        result.roboMoves.push_back({1, 0});
+        break;
+      default:
+        assert(false && "Unexpected move char");
+      }
     }
   }
-  return boardScore(input);
+
+  for (int i = 0; i < result.board.size(); ++i) {
+    for (int j = 0; j < result.board[0].size(); ++j) {
+      if (result.board[i][j] == '@') {
+        result.roboLoc = {j, i};
+      }
+    }
+  }
+
+  return result;
+}
+
+long part2(WarehouseState input) {
+  logBoard(input, 0);
+
+  for (int i = 0; i < input.roboMoves.size(); ++i) {
+    int delX = input.roboMoves[i].x;
+    int delY = input.roboMoves[i].y;
+
+    if (delX == 0) {
+      // nothing changed for the horizontal movements. just use p1
+      if (canMakeMove(input, i)) {
+      }
+    }
+  }
+
+  return -1;
 }
 
 int main() {
   WarehouseState testInput = loadInput("./15_testInput.txt");
   WarehouseState input = loadInput("./15_input.txt");
+  WarehouseState p2TestInput = loadInputPart2("./15_testInput.txt");
+  WarehouseState p2input = loadInputPart2("./15_input.txt");
 
-  std::cout << "Test 1: " << part1(testInput, /*visualize=*/true) << std::endl;
-  std::cout << "Part 1: " << part1(input, /*visualize=*/false) << std::endl;
+  std::cout << "Test 1: " << part1(testInput) << std::endl;
+  std::cout << "Part 1: " << part1(input) << std::endl;
+  std::cout << "Test 2: " << part2(p2TestInput) << std::endl;
 }
