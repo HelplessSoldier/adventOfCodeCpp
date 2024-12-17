@@ -1,7 +1,8 @@
-#include <algorithm>
 #include <climits>
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <set>
 #include <stack>
 #include <string>
 #include <vector>
@@ -44,20 +45,25 @@ Vec2 matmul(const mat2i &A, const Vec2 &b) {
   return result;
 }
 
-long part1(const mat2c &input) {
+std::tuple<Vec2, Vec2, mat2i, std::map<Vec2, std::vector<Vec2>>>
+buildCostMap(const mat2c &input) {
+
   const int turnCost = 1000;
   const int stepCost = 1;
 
   mat2i costMap(input.size(), std::vector<int>(input[0].size(), INT_MAX));
   std::stack<State> states;
 
-  Vec2 endLoc;
+  std::map<Vec2, std::vector<Vec2>> predecessors;
 
+  Vec2 endLoc, startLoc;
   for (int i = 0; i < input.size(); ++i) {
     for (int j = 0; j < input[0].size(); ++j) {
       if (input[i][j] == 'S') {
         states.push({{j, i}, {1, 0}});
         costMap[i][j] = 0;
+        startLoc.x = j;
+        startLoc.y = i;
       }
       if (input[i][j] == 'E') {
         endLoc.x = j;
@@ -91,6 +97,10 @@ long part1(const mat2c &input) {
         costMap[forwardPos.y][forwardPos.x] = currLocCost + stepCost;
         State forwardState = {forwardPos, curr.vel};
         states.push(forwardState);
+        predecessors[forwardPos] = {curr.pos};
+      } else if (costMap[forwardPos.y][forwardPos.x] ==
+                 currLocCost + stepCost) {
+        predecessors[forwardPos].push_back(curr.pos);
       }
     }
 
@@ -99,6 +109,10 @@ long part1(const mat2c &input) {
         costMap[leftPos.y][leftPos.x] = currLocCost + turnCost + stepCost;
         State leftState = {leftPos, leftDelta};
         states.push(leftState);
+        predecessors[leftPos] = {curr.pos};
+      } else if (costMap[leftPos.y][leftPos.x] ==
+                 currLocCost + turnCost + stepCost) {
+        predecessors[leftPos].push_back(curr.pos);
       }
     }
 
@@ -107,17 +121,58 @@ long part1(const mat2c &input) {
         costMap[rightPos.y][rightPos.x] = currLocCost + turnCost + stepCost;
         State rightState = {rightPos, rightDelta};
         states.push(rightState);
+        predecessors[rightPos] = {curr.pos};
+      } else if (costMap[rightPos.y][rightPos.x] ==
+                 currLocCost + turnCost + stepCost) {
+        predecessors[rightPos].push_back(curr.pos);
       }
     }
   }
 
-  return costMap[endLoc.y][endLoc.x];
+  return {startLoc, endLoc, costMap, predecessors};
+}
+
+int sumValidPathLengths(const Vec2 &startLoc, const Vec2 &endLoc,
+                        const std::map<Vec2, std::vector<Vec2>> &predecessors) {
+
+  std::set<Vec2> visited;
+  std::stack<Vec2> stack;
+
+  stack.push(endLoc);
+
+  while (!stack.empty()) {
+    Vec2 curr = stack.top();
+    stack.pop();
+
+    visited.insert(curr);
+
+    if (predecessors.find(curr) != predecessors.end()) {
+      for (const Vec2 &prev : predecessors.at(curr)) {
+        stack.push(prev);
+      }
+    }
+  }
+
+  int sum = 0;
+  for (const Vec2 &pos : visited) {
+    sum += 1;
+  }
+
+  return sum;
+}
+
+void solve(const mat2c &input, std::string label) {
+  auto [startLoc, endLoc, costMap, predecessors] = buildCostMap(input);
+  std::cout << label << " 1: " << costMap[endLoc.y][endLoc.x] << std::endl;
+
+  int pathSquaresCount = sumValidPathLengths(startLoc, endLoc, predecessors);
+  std::cout << label << " 2: " << pathSquaresCount << std::endl;
 }
 
 int main() {
   mat2c testInput = loadInput("./16_testInput.txt");
   mat2c input = loadInput("./16_input.txt");
 
-  std::cout << "Test 1: " << part1(testInput) << std::endl;
-  std::cout << "Part 1: " << part1(input) << std::endl;
+  solve(testInput, "Test");
+  // solve(input, "Part");
 }
