@@ -1,3 +1,7 @@
+/*
+ * this is incomplete for part 2, currently attempts to brute force.
+ */
+
 #include <cassert>
 #include <climits>
 #include <cmath>

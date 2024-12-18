@@ -1,3 +1,8 @@
+/*
+ * this solution is incomplete, wasn't able to figure out how to backtrack
+ * for part 2
+ */
+
 #include <climits>
 #include <fstream>
 #include <iostream>
