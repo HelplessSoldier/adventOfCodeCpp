@@ -170,6 +170,8 @@ void solve(const mat2c &input, std::string label) {
 }
 
 int main() {
+  // consider turning the input into a 3d search? x, y, dir?
+
   mat2c testInput = loadInput("./16_testInput.txt");
   mat2c input = loadInput("./16_input.txt");
 
