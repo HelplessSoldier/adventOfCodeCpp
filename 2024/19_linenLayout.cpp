@@ -1,4 +1,5 @@
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <fstream>
 #include <iostream>
@@ -122,6 +123,8 @@ std::pair<int, long long> solve(InputType input) {
 }
 
 int main() {
+  auto start = std::chrono::high_resolution_clock::now();
+
   InputType testInput = loadInput("./19_testInput.txt");
   std::pair<int, long long> testResults = solve(testInput);
   std::cout << "Test 1: " << testResults.first << std::endl;
@@ -131,4 +134,9 @@ int main() {
   std::pair<int, long long> results = solve(input);
   std::cout << "Part 1: " << results.first << std::endl;
   std::cout << "Part 2: " << results.second << std::endl;
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
+  std::cout << "Completed in " << time << "ms" << std::endl;
 }
