@@ -1,4 +1,4 @@
-// incomplete solution, fails of test 1, and too slow for part 2
+// incomplete solution, fails on test 1, and too slow for part 2
 
 #include <algorithm>
 #include <chrono>
